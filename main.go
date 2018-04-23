@@ -19,8 +19,12 @@ func main() {
 		panic(err)
 	}
 	defer sdl.Quit()
+sdl.GLSetAttribute(sdl.GL_CONTEXT_PROFILE_MASK, sdl.GL_CONTEXT_PROFILE_CORE)
+	sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 3)
+	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 3)
 
-	window, err := sdl.CreateWindow("Hi", 200, 200, winW, winH, sdl.WINDOW_OPENGL)
+
+	window, err := sdl.CreateWindow("Hi", 50, 50, winW, winH, sdl.WINDOW_OPENGL)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +34,8 @@ func main() {
 
 	fmt.Print(g.GetVersion(), "\n")
 
-	shaderProgram, err := g.NewShader("hello.vert", "hello.frag")
+	texture := g.LoadTexture("assets/text.png")
+	shaderProgram, err := g.NewShader("hello.vert", "text.frag")
 if err != nil {
 	panic(err)
 }
@@ -51,12 +56,12 @@ if err != nil {
 	g.GenBindBuffer(gl.ELEMENT_ARRAY_BUFFER)
 	g.BufferDataInt(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
 
-
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
 	gl.EnableVertexAttribArray(0)
-	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(2*4))
+	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+	gl.EnableVertexAttribArray(1)
 
-	gl.BindVertexArray(0)
+	g.UnbindVertex()
 
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -69,6 +74,9 @@ if err != nil {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		shaderProgram.Use()
+		//shaderProgram.SetFloat("x", x)
+		//shaderProgram.SetFloat("y", 0.0)
+		g.BindTexture(texture)
 		g.BindVertexArray(VAO)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, gl.PtrOffset(0))
 
